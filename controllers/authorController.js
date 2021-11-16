@@ -1,6 +1,14 @@
 var Author = require('../models/author');
 var async = require('async');
 var Book = require('../models/book');
+
+var listAll = require('debug')('author:listAll');
+var detail = require('debug')('author:detail');
+var createPost = require('debug')('author:createPost');
+var deleteGet = require('debug')('author:deleteGet');
+var updateGet = require('debug')('author:updateGet');
+var updatePost = require('debug')('author:updatePost');
+
 const { body, validationResult } = require('express-validator');
 
 // Display list of all Authors.
@@ -9,6 +17,7 @@ exports.author_list = function (req, res, next) {
     .sort([['family_name', 'ascending']])
     .exec(function (err, list_authors) {
       if (err) {
+        listAll('Author List Error:' + err);
         return next(err);
       }
       //Successful, so render
@@ -32,12 +41,14 @@ exports.author_detail = function (req, res, next) {
     },
     function (err, results) {
       if (err) {
+        detail('Detail page error:' + err);
         return next(err);
       } // Error in API usage.
       if (results.author == null) {
         // No results.
         var err = new Error('Author not found');
         err.status = 404;
+        detail('Detail page error:' + err);
         return next(err);
       }
       // Successful, so render.
@@ -106,6 +117,7 @@ exports.author_create_post = [
       });
       author.save(function (err) {
         if (err) {
+          createPost('Create author Post error: ' + err);
           return next(err);
         }
         // Successful - redirect to new author record.
@@ -128,10 +140,14 @@ exports.author_delete_get = function (req, res, next) {
     },
     function (err, results) {
       if (err) {
+        deleteGet('Delete Author page error:' + err);
         return next(err);
       }
       if (results.author == null) {
         // No results.
+        var err = new Error('Author not found');
+        err.status = 404;
+        deleteGet('Delete Author page error:' + err);
         res.redirect('/catalog/authors');
       }
       // Successful, so render.
@@ -157,6 +173,7 @@ exports.author_delete_post = function (req, res, next) {
     },
     function (err, results) {
       if (err) {
+        deleteGet('Delete Author Post error:' + err);
         return next(err);
       }
       // Success
@@ -193,12 +210,14 @@ exports.author_update_get = function (req, res, next) {
     },
     function (err, results) {
       if (err) {
+        updateGet('Update Author form page error:' + err);
         return next(err);
       } // Error in API usage.
       if (results.author == null) {
         // No author results.
         var err = new Error('Author not found');
         err.status = 404;
+        updateGet('Update Author form page error:' + err);
         return next(err);
       }
       // Success.
@@ -262,12 +281,14 @@ exports.author_update_post = [
         },
         function (err, results) {
           if (err) {
+            updatePost('Update Author Post error:' + err);
             return next(err);
           } // Error in API usage.
           if (results.author == null) {
             // No author results.
             var err = new Error('Author not found');
             err.status = 404;
+            updatePost('Update Author Post error:' + err);
             return next(err);
           }
           // Success.
@@ -286,6 +307,7 @@ exports.author_update_post = [
         {},
         function (err, theauthor) {
           if (err) {
+            updatePost('Update Author Post error:' + err);
             return next(err);
           }
           // Successful - redirect to author detail page.
